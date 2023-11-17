@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from 'react';
-import screenfull from 'screenfull';
 
 const Clock = () => {
     const [currentTime, setCurrentTime] = useState(getCurrentTime());
@@ -11,39 +10,39 @@ const Clock = () => {
         }, 1000);
 
         const handleKeyDown = (event) => {
-            if (screenfull.isFullscreen) {
+            if (document.fullscreenElement) {
                 event.preventDefault();
                 if (!(event.ctrlKey && event.key === 'l')) {
                     event.stopPropagation(); // Stop other key events when in fullscreen
                 }
             } else {
                 if (event.ctrlKey && event.key === 'l') {
-                    screenfull.exit();
+                    exitFullscreen();
                 }
 
-                if (event.key === 'F11' && screenfull.enabled) {
+                if (event.key === 'F11' && fullscreenEnabled()) {
                     event.preventDefault(); // Prevent default behavior of F11
-                    if (!screenfull.isFullscreen) {
-                        screenfull.request();
+                    if (!document.fullscreenElement) {
+                        requestFullscreen();
                     }
                 }
             }
         };
 
         const handleFullScreenChange = () => {
-            if (screenfull.isFullscreen) {
+            if (document.fullscreenElement) {
                 document.addEventListener('keydown', handleKeyDown);
             } else {
                 document.removeEventListener('keydown', handleKeyDown);
             }
         };
 
-        screenfull.on('change', handleFullScreenChange);
+        document.addEventListener('fullscreenchange', handleFullScreenChange);
 
         return () => {
             clearInterval(intervalId);
             document.removeEventListener('keydown', handleKeyDown);
-            screenfull.off('change', handleFullScreenChange);
+            document.removeEventListener('fullscreenchange', handleFullScreenChange);
         };
     }, []);
 
@@ -64,6 +63,39 @@ const Clock = () => {
         return timeComponent < 10 ? `0${timeComponent}` : timeComponent;
     }
 
+    function requestFullscreen() {
+        const element = document.documentElement;
+        if (element.requestFullscreen) {
+            element.requestFullscreen();
+        } else if (element.webkitRequestFullscreen) {
+            element.webkitRequestFullscreen();
+        } else if (element.msRequestFullscreen) {
+            element.msRequestFullscreen();
+        }
+    }
+
+    function exitFullscreen() {
+        if (document.exitFullscreen) {
+            document.exitFullscreen();
+        } else if (document.webkitExitFullscreen) {
+            document.webkitExitFullscreen();
+        } else if (document.msExitFullscreen) {
+            document.msExitFullscreen();
+        }
+    }
+
+    function fullscreenToggle() {
+        if (document.fullscreenElement) {
+            exitFullscreen();
+        } else {
+            requestFullscreen();
+        }
+    }
+
+    function fullscreenEnabled() {
+        return document.fullscreenEnabled || document.webkitFullscreenEnabled || document.msFullscreenEnabled;
+    }
+
     function handleSeconds() {
         setIsSeconds(!isSeconds);
     }
@@ -73,7 +105,7 @@ const Clock = () => {
             <div className='flex items-center justify-center w-screen h-screen relative'>
                 <h1 className='text-9xl font-bold'>{currentTime.time}</h1>
                 <span className="text-2xl font-medium">{currentTime.ampm}</span>
-                <button className='rounded-md absolute bottom-10 right-10 border-black border-2 w-32 font-medium' onClick={screenfull.toggle}>{screenfull.isFullscreen ? 'Exit Full Screen' : 'Full Screen'}</button>
+                <button className='rounded-md absolute bottom-10 right-10 border-black border-2 w-32 font-medium' onClick={fullscreenToggle}>{document.fullscreenElement ? 'Exit Full Screen' : 'Full Screen'}</button>
                 <button className='rounded-md absolute bottom-10 left-10 border-black border-2 w-36 font-medium' onClick={handleSeconds}>{isSeconds ? 'Show Seconds' : 'Hide Seconds'}</button>
             </div>
         </>
