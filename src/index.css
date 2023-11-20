@@ -3,6 +3,5 @@
 @tailwind utilities;
 
 body {
-    background-image: linear-gradient(to right, #f2709c, #ff9472);
     margin: 0;
 }

@@ -1,9 +1,23 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
+import ThemeContext from '../../Context/ThemeContext';
+import NoSleep from 'nosleep.js';
 
 const Clock = () => {
     const [currentTime, setCurrentTime] = useState(getCurrentTime());
     const [isSeconds, setIsSeconds] = useState(false);
+    const [showSettings, setshowSettings] = useState(false)
 
+
+
+    const themeValues = useContext(ThemeContext);
+    const { theme, updateTheme } = themeValues
+    console.log(theme)
+    useEffect(() => {
+        const noSleep = new NoSleep();
+        console.log('No Sleep Enabled')
+        // Enable NoSleep
+        noSleep.enable();
+    }, []);
     useEffect(() => {
         const intervalId = setInterval(() => {
             setCurrentTime(getCurrentTime());
@@ -50,6 +64,7 @@ const Clock = () => {
         const currentDate = new Date();
         let hours = currentDate.getHours();
         const minutes = currentDate.getMinutes();
+        const seconds = currentDate.getSeconds();
         const ampm = hours >= 12 ? 'PM' : 'AM';
         hours = hours % 12 || 12; // Convert to 12-hour format
 
@@ -100,15 +115,52 @@ const Clock = () => {
         setIsSeconds(!isSeconds);
     }
 
+    function handleChangeTheme(theme) {
+        updateTheme(theme)
+    }
+    function handleSettingChange() {
+        setshowSettings(!showSettings)
+    }
+
+    const isMobile = window.innerWidth <= 768; // Adjust this breakpoint as needed
+
     return (
-        <>
-            <div className='flex items-center justify-center w-screen h-screen relative'>
-                <h1 className='text-9xl font-bold'>{currentTime.time}</h1>
-                <span className="text-2xl font-medium">{currentTime.ampm}</span>
-                <button className='rounded-md absolute bottom-10 right-10 border-black border-2 w-32 font-medium' onClick={fullscreenToggle}>{document.fullscreenElement ? 'Exit Full Screen' : 'Full Screen'}</button>
-                <button className='rounded-md absolute bottom-10 left-10 border-black border-2 w-36 font-medium' onClick={handleSeconds}>{isSeconds ? 'Show Seconds' : 'Hide Seconds'}</button>
-            </div>
-        </>
+        <div className={`flex flex-col items-center justify-center h-screen relative ${isMobile ? 'mobile-view' : ''} {theme}`}>
+            {isMobile && (
+                <p className="text-center text-lg font-medium my-4">
+                    Open this site on a desktop for the best experience.
+                </p>
+            )}
+            <h1 className={`text-4xl md:text-9xl font-bold ${isMobile ? 'mb-4' : ''}`}>{currentTime.time}</h1>
+            <span className={`text-xl md:text-2xl font-medium ${isMobile ? 'mb-4' : ''}`}>{currentTime.ampm}</span>
+            <span className="material-symbols-outlined cursor-pointer" onClick={handleSettingChange}  >
+                settings
+            </span>
+            {!isMobile && showSettings && (<>
+                <div className='flex absolute bottom-10 left-10 right-10'>
+                    <button className='rounded-md mx-2 border-black border-2 w-24 font-medium' onClick={fullscreenToggle}>
+                        {document.fullscreenElement ? 'Exit Full Screen' : 'Full Screen'}
+                    </button>
+                    <button className='rounded-md mx-2 border-black border-2 w-24 font-medium' onClick={handleSeconds}>
+                        {isSeconds ? 'Show Seconds' : 'Hide Seconds'}
+                    </button>
+                </div>
+                <div className='flex absolute bottom-10  right-10'>
+                    <button className='rounded-md mx-2 border-black border-2 w-28 font-medium' onClick={() => { handleChangeTheme('pinkBody') }}>
+                        Theme 1
+                    </button>
+                    <button className='rounded-md mx-2 border-black border-2 w-28 font-medium' onClick={() => { handleChangeTheme('blueBody') }}>
+                        Theme 2
+                    </button>
+                    <button className='rounded-md mx-2 border-black border-2 w-28 font-medium' onClick={() => { handleChangeTheme('yellowBody') }}>
+                        Theme 3
+                    </button>
+                    <button className='rounded-md mx-2 border-black border-2 w-28 font-medium' onClick={() => { handleChangeTheme('darkBody') }}>
+                        Theme 4
+                    </button>
+                </div></>
+            )}
+        </div>
     );
 };
 
