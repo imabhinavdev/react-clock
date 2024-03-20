@@ -7,13 +7,11 @@ import './App.css';
 const App = () => {
   const values = useContext(ThemeContext);
   const { theme, updateTheme } = values
-  const [, forceUpdate] = useState();
 
   return (
-      <div className={`${theme}`}>
-
-        <Clock />
-      </div>
+    <div>
+      <Clock />
+    </div>
   );
 }
 

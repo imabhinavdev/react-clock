@@ -14,10 +14,12 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "framer-motion": "^10.16.16",
     "nosleep": "^2.0.0",
     "nosleep.js": "^0.12.0",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
+    "react-router-dom": "^6.20.1",
     "screenfull": "^6.0.2"
   },
   "devDependencies": {
